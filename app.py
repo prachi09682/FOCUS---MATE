@@ -1,5 +1,8 @@
 import joblib
 import pandas as pd
+import streamlit as st
+st.title("Focus Mate")
+st.caption("Built by Prachi Patidar")
 
 # Load trained model
 model = joblib.load("model_focus.pkl")
@@ -39,4 +42,5 @@ prediction = model.predict(input_data)
 if prediction[0] == 1:
     print("\n✅ You are likely to be FOCUSED")
 else:
+
     print("\n❌ You are likely to be NOT FOCUSED")
