@@ -16,8 +16,15 @@ time_of_day = st.selectbox(
     ["morning", "afternoon", "evening", "night"]
 )
 
-if st.button("Predict Focus"):
-    st.success("✅ Input received successfully!")
-    st.write("Prediction feature can be connected to ML model.")
 
-st.caption("Built by Prachi Patidar")
+ if st.button("Predict Focus"):
+    if study_duration >= 45 and idle_time <= 10 and breaks <= 2:
+        st.success("🎯 Prediction: You are Focused")
+    else:
+        st.warning("⚠️ Prediction: You are Not Focused")
+
+    st.write("Study Duration:", study_duration)
+    st.write("Idle Time:", idle_time)
+    st.write("Breaks:", breaks)
+    st.write("Time of Day:", time_of_day)   
+st.caption("Build by Prachi Patidar")
