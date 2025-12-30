@@ -1,50 +1,77 @@
-# app.py
 import streamlit as st
-import pandas as pd
-import joblib
+import time
 
-# -----------------------
-# Load model
-# -----------------------
-try:
-    model = joblib.load("model_focus.pkl")
-except:
-    st.error("Model file not found. Please upload 'model_focus.pkl' in the same folder.")
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(
+    page_title="Focus Mate",
+    page_icon="🎯",
+    layout="centered"
+)
 
-# -----------------------
-# App Title
-# -----------------------
-st.title("Focus Mate")
+# ---------------- TITLE ----------------
+st.title("🎯 Focus Mate")
 st.caption("Built by Prachi Patidar")
 
-# -----------------------
-# Input Fields
-# -----------------------
-study_duration = st.number_input("Study Duration (minutes)", min_value=0, value=60)
-idle_time = st.number_input("Idle Time (minutes)", min_value=0, value=10)
-num_breaks = st.number_input("Number of Breaks", min_value=0, value=2)
-time_of_day = st.selectbox("Time of Day", ["morning", "afternoon", "night"])
+st.write("A simple study companion to help you focus better.")
 
-# Map time of day to numeric values as model expects
-time_map = {"morning": 0, "afternoon": 1, "night": 2}
+st.divider()
 
-# Prepare input data in dataframe for model
-input_data = pd.DataFrame({
-    "study_duration": [study_duration],
-    "idle_time": [idle_time],
-    "break": [num_breaks],
-    "time_of_day": [time_map[time_of_day]]
-})
+# ---------------- INPUTS ----------------
+study_duration = st.number_input(
+    "Study Duration (minutes)",
+    min_value=1,
+    max_value=300,
+    value=25
+)
 
-# -----------------------
-# Prediction Button
-# -----------------------
-if st.button("Predict Focus"):
-    try:
-        prediction = model.predict(input_data)[0]
-        if prediction == 1:
-            st.success("✅ You are Focused!")
-        else:
-            st.error("❌ You are Not Focused.")
-    except Exception as e:
-        st.error(f"Error in prediction: {e}")
+break_duration = st.number_input(
+    "Break Duration (minutes)",
+    min_value=1,
+    max_value=60,
+    value=5
+)
+
+task_name = st.text_input(
+    "What are you studying right now?",
+    placeholder="Eg: Physics, Coding, Maths"
+)
+
+st.divider()
+
+# ---------------- START BUTTON ----------------
+if st.button("🚀 Start Focus Session"):
+    if task_name.strip() == "":
+        st.warning("Please enter what you are studying.")
+    else:
+        st.success(f"Focus session started for **{task_name}**")
+
+        # Study Timer
+        st.write("⏳ Study time started...")
+        study_seconds = int(study_duration * 60)
+
+        progress_bar = st.progress(0)
+        for i in range(study_seconds):
+            time.sleep(1)
+            progress_bar.progress((i + 1) / study_seconds)
+
+        st.success("✅ Study session completed!")
+
+        # Break Timer
+        st.write("☕ Break time started...")
+        break_seconds = int(break_duration * 60)
+
+        progress_bar = st.progress(0)
+        for i in range(break_seconds):
+            time.sleep(1)
+            progress_bar.progress((i + 1) / break_seconds)
+
+        st.success("🎉 Break over! Ready for the next session.")
+
+st.divider()
+
+# ---------------- FOOTER ----------------
+st.markdown(
+    "<center>💡 Stay consistent. Small focus sessions build big results.</center>",
+    unsafe_allow_html=True
+)
+
