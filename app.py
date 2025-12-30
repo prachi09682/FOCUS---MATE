@@ -1,46 +1,50 @@
-import joblib
-import pandas as pd
+# app.py
 import streamlit as st
+import pandas as pd
+import joblib
+
+# -----------------------
+# Load model
+# -----------------------
+try:
+    model = joblib.load("model_focus.pkl")
+except:
+    st.error("Model file not found. Please upload 'model_focus.pkl' in the same folder.")
+
+# -----------------------
+# App Title
+# -----------------------
 st.title("Focus Mate")
 st.caption("Built by Prachi Patidar")
 
-# Load trained model
-model = joblib.load("model_focus.pkl")
+# -----------------------
+# Input Fields
+# -----------------------
+study_duration = st.number_input("Study Duration (minutes)", min_value=0, value=60)
+idle_time = st.number_input("Idle Time (minutes)", min_value=0, value=10)
+num_breaks = st.number_input("Number of Breaks", min_value=0, value=2)
+time_of_day = st.selectbox("Time of Day", ["morning", "afternoon", "night"])
 
-print("📘 Study Focus Predictor")
-print("------------------------")
+# Map time of day to numeric values as model expects
+time_map = {"morning": 0, "afternoon": 1, "night": 2}
 
-# Take user input
-study_duration = int(input("Enter study duration (minutes): "))
-idle_time = int(input("Enter idle time (minutes): "))
-breaks = int(input("Enter number of breaks: "))
-time_of_day = input("Enter time of day (morning/afternoon/night): ").lower()
-
-# Convert time_of_day to number
-if time_of_day == "morning":
-    time_of_day = 0
-elif time_of_day == "afternoon":
-    time_of_day = 1
-elif time_of_day == "night":
-    time_of_day = 2
-else:
-    print("❌ Invalid time of day")
-    exit()
-
-# Create input DataFrame
+# Prepare input data in dataframe for model
 input_data = pd.DataFrame({
     "study_duration": [study_duration],
     "idle_time": [idle_time],
-    "break": [breaks],
-    "time of day": [time_of_day]
+    "break": [num_breaks],
+    "time_of_day": [time_map[time_of_day]]
 })
 
-# Predict
-prediction = model.predict(input_data)
-
-# Output
-if prediction[0] == 1:
-    print("\n✅ You are likely to be FOCUSED")
-else:
-
-    print("\n❌ You are likely to be NOT FOCUSED")
+# -----------------------
+# Prediction Button
+# -----------------------
+if st.button("Predict Focus"):
+    try:
+        prediction = model.predict(input_data)[0]
+        if prediction == 1:
+            st.success("✅ You are Focused!")
+        else:
+            st.error("❌ You are Not Focused.")
+    except Exception as e:
+        st.error(f"Error in prediction: {e}")
